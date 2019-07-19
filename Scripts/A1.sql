@@ -1,0 +1,169 @@
+/* Se crea un espacio de memoria para asegurar el espacio del tablespace */ 
+CREATE TABLESPACE OCTOPUSTS DATAFILE 'C:\TABLESPACES\OCTOPUS.DBF' SIZE 30M;
+
+ALTER DATABASE DATAFILE 'C:\TABLESPACES\INITZERO\INITZERO_FILE.DBF'RESIZE 20M;
+
+
+/* Se crea un usuario que va a ser el SHEMA */
+CREATE USER ERICK IDENTIFied BY PASSWORD123 DEFAULT TABLESPACE OCTOPUSTS QUOTA 20M ON OCTOPUSTS 
+PASSWORD EXPIRE;
+
+SELECT * FROM DBA_TS_quotas;
+
+
+GRANT CONNECT TO JORGE;
+GRANT RESOURCE TO JORGE;
+GRANT ALL PRIVILEGES  TO jorge;
+
+/* EN EL SHEMA DE JORGE */
+CREATE TABLE NIVELSYSDBA(empno      NUMBER(5) PRIMARY KEY,ename      VARCHAR2(15) NOT NULL);
+COMMENT ON TABLE NIVELSYSDBA IS 'Soy un comentario';
+
+/* Ver el schema de las tablas */
+SELECT tablespace_name, table_name FROM 
+
+CREATE TABLE T_EMPLEADO(
+  CVE_PERSONA NUMBER(15) PRIMARY KEY,
+  NOMBRE VARCHAR2(255) NOT NULL,
+  SALARIO_MES NUMBER(7,2),
+  SALARIO_QUINCENA NUMBER(7,2) GENERATED ALWAYS AS (SALARIO/2),
+  FOTO BLOB,
+  FCH_CREACION DATE DEFAULT (sysdate),
+  FCH_MODIFICACION DATE,
+  CVE_USUARIO NUMBER(15),
+  CVE_DEPARTAMENTO NUMBER(15),
+  ACTIVO NUMBER(1),
+  CONSTRAINT FK_CVE_USUARIO FOREIGN KEY (CVE_USUARIO) REFERENCES T_USUARIO (CVE_USUARIO),
+  CONSTRAINT FK_CVE_DEPARTAMENTO FOREIGN KEY (CVE_DEPARTAMENTO) REFERENCES T_DEPARTAMENTO (CVE_DEPARTAMENTO));
+
+CREATE TABLE T_DEPARTAMENTO(
+  CVE_DEPARTAMENTO NUMBER(15) PRIMARY KEY,
+  NOMBRE VARCHAR2(255) NOT NULL,
+  FCH_CREACION DATE DEFAULT (sysdate),
+  FCH_MODIFICACION DATE,
+  CVE_USUARIO NUMBER(15),
+  ACTIVO NUMBER(1),
+  CONSTRAINT FK_CVE_USUARIO FOREIGN KEY (CVE_USUARIO) REFERENCES T_USUARIO (CVE_USUARIO));
+
+CREATE TABLE T_USUARIO(
+  CVE_USUARIO NUMBER(15) PRIMARY KEY,
+  NOMBRE VARCHAR2(255) NOT NULL,
+  CORREO VARCHAR2(255) NOT NULL,
+  PASSWORD NUMBER(15) ENCRYPT,
+  FCH_CREACION DATE DEFAULT (sysdate),
+  FCH_MODIFICACION DATE,
+  ACTIVO NUMBER(1));
+
+/* Podría verse así  */
+CREATE TABLE NIVELSYSDBA (
+         empno      NUMBER(5) PRIMARY KEY,
+         ename      VARCHAR2(15) NOT NULL,
+         ssn        NUMBER(9) ENCRYPT,
+         job        VARCHAR2(10),
+         mgr        NUMBER(5),
+         hiredate   DATE DEFAULT (sysdate),
+         photo      BLOB,
+         sal        NUMBER(7,2),
+         hrly_rate  NUMBER(7,2) GENERATED ALWAYS AS (sal/2080),
+         comm       NUMBER(7,2),
+         deptno     NUMBER(3) NOT NULL
+                     CONSTRAINT admin_dept_fkey REFERENCES hr.departments
+                     (department_id))
+   TABLESPACE admin_tbs
+   STORAGE ( INITIAL 50K);
+
+COMMENT ON TABLE hr.admin_emp IS 'Enhanced employee table';
+
+GRANT CREATE TABLE TO jorge;
+
+/* Se crea un usuario que va a ser el SHEMA */
+CREATE USER LUNA IDENTIFied BY LUNA123 DEFAULT TABLESPACE OCTOPUSTS ;
+
+GRANT CONNECT, RESOURCE, ALL PRIVILEGES TO LUNA;
+
+/* Dándole permiso a Luna para ver las tablas de Jorge*/
+GRANT SELECT ON JORGE.NIVELSYSDBA TO LUNA;
+
+/* Quitarle permiso a Luna para ver las tablas de Jorge 
+REVOKE UPDATE FROM LUNA;*/
+
+/*Listar las tablas*/
+select tablespace_name, table_name from all_tables where tablespace_name = 'OCEAN';
+
+/* ELIMINAR USUARIO0 */
+DROP USER JORGE;
+
+DROP USER JORGE CASCADE;
+DROP USER LUNA CASCADE;
+DROP TABLESPACE octopusts INCLUDING CONTENTS AND DATAFILES;
+
+**********************************************************************************************************
+**********************************************************************************************************
+************************
+
+
+
+/* Se crea un espacio de memoria para asegurar el espacio del tablespace */ 
+--Despues de 4gb es ilegal
+CREATE TABLESPACE OCTOPUSTS DATAFILE 'C:\OCEANBD\OCTOPUS.DBF' SIZE 5G;
+
+/*Instrucción que borra un tablespace*/
+DROP TABLESPACE OCTOPUSTS INCLUDING CONTENTS AND DATAFILES;
+
+
+/* Dar todos los privilegios a OCEAN*/
+GRANT ALL PRIVILEGES TO OCEAN;
+
+/* Dar privilegios, concatenado*/
+GRANT CONNECT, RESOURCE, ALL PRIVILEGES TO OCEAN, OLALAA;
+
+/* [GRANT/REVOKE][ Tipo o tipos de permiso ] [ EN CASO DE PERMISOS A NIVEL TABLA HACIA LA TABLA  ][G TO / FROM R] [ EL O LOS USUARIOS ] */
+
+/* Privilegios a nivel tabla (construccion de el alcance del usuario)*/
+--A nivel SYSTEM
+--Acceso por tabla
+--Opcionales
+--De un usuario a otro
+GRANT INSERT,DELETE,UPDATE,SELECT ON OCEAN.NIVELSYSDBA TO OCEAN;
+
+
+REVOKE EXECUTE ON PROCEDURE OCEAN.MIFUNCION FROM OCEAN RESTRICT;
+REVOKE USAGE ON SEQUENCE OCEAN.EMPLEADO_SEQ FROM OCEAN;
+
+--Poodríamos configurar los persmisos a las columnas.REVOKE
+GRANT UPDATE(ENAME),INSERT(ENAME,EMPNO) ON OCEAN.NIVELSYSDBA TO OCEAN,OLALAA;
+
+
+/*Eliminar privilegios a nivel tabla */
+REVOKE UPDATE ON TABLE OCEAN.NIVELSYSDBA FROM OCEAN,OLALAA;
+
+/* Si no te permite */
+DROP USER OCEAN CASCADE;
+
+
+CREATE USER OLALAA IDENTIFIED BY passwo DEFAULT TABLESPACE OCEANBD QUOTA 10M ON OCEANBD; 
+
+
+/*Cuanto espacio está utilizando actualmente */
+SELECT * FROM DBA_TS_quotas dba where dba.username = 'OCEAN';
+
+
+/*SELECT NORAMAL*/
+SELECT * FROM OCEAN.NIVELSYSDBA;
+
+/*revisar el log de los usuarios OJO, NO HACKEAR */
+select * from apex_activity_log ;
+
+/*Listar las tablas*/
+select tablespace_name, table_name from all_tables where tablespace_name = 'OCEAN';
+
+
+/*CREAR UN ROLE PARA DESPUES ASIGNARLO AL USUARIO*/
+CREATE ROLE USUARIO_LECTURA;--DROP ROLE USUARIO_LECTURA;
+/*AL ROLE CREADO SE LE ASIGNAN LOS PRIVILEGIOS*/
+GRANT CREATE SESSION TO USUARIO_LECTURA;
+/*ASIGNACION DEL ROLE AL USUARIO*/
+GRANT USUARIO_LECTURA TO ERICK;
+/*SE ABRE CONEXION CON EL USUARIO Y SE INTENTA CREAR UNA TABLA MARCARA ERROR EL USURIO NO TIENE PRIVILEGIOS PARA CREAR TABLAS
+Y SE LE ASIGNA EL PRIVILEGIO DE CREAR TABLAS AL ROLE OJO AL ROL NO AL USUARIO*/
+GRANT CREATE ANY TABLE TO USUARIO_LECTURA;
