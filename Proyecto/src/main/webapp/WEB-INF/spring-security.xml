@@ -1,44 +1,49 @@
-<beans:beans 
-	xmlns="http://www.springframework.org/schema/security"
-    xmlns:beans="http://www.springframework.org/schema/beans"
+<beans 
+	xmlns="http://www.springframework.org/schema/beans"
+    xmlns:security="http://www.springframework.org/schema/security"
+    xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="
 	http://www.springframework.org/schema/beans
   	http://www.springframework.org/schema/beans/spring-beans.xsd
     http://www.springframework.org/schema/security
-    http://www.springframework.org/schema/security/spring-security-4.0.xsd">
-
-	 <!--<beans:xsi:import resource="classpath:WEB-INF/mi-contexto.xml" />-->
+    http://www.springframework.org/schema/security/spring-security-4.0.xsd
+    http://www.springframework.org/schema/context
+ 	http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+	
+	 <context:annotation-config/>
+    
+	<!--  <beans:xsi:import resource="classpath:WEB-INF/mi-contexto.xml" /> -->
 
 	<!-- Security -->
-	<http auto-config="true">  
-       <intercept-url pattern="/getBandejaInicial*" 
+	<security:http auto-config="true">  
+       <security:intercept-url pattern="/getBandejaInicial*" 
        access="hasRole('ROLE_ADMIN')" /> <!-- ROLE_ + SUFIX-->
-       <intercept-url pattern="/getAfiliacionById" access="hasRole('ROLE_ADMIN')" /> 
+       <security:intercept-url pattern="/getAfiliacionById" access="hasRole('ROLE_ADMIN')" /> 
        
-        <form-login login-page="/login" default-target-url="/getBandejaInicial"
+        <security:form-login login-page="/login" default-target-url="/getBandejaInicial"
         authentication-failure-url="/failure" />
         
-        <csrf disabled="true"/>
-    </http>  
+        <security:csrf disabled="true"/>
+    </security:http>  
      
-     <authentication-manager>  
-      <authentication-provider>  
-        <user-service>  
-        	<user name="weblogic" password="weblogic1" 
+  <security:authentication-manager>  
+      <security:authentication-provider>  
+        <security:user-service>  
+        	<security:user name="weblogic" password="weblogic1" 
         	authorities="ROLE_ADMIN" />  
-        </user-service>  
-      </authentication-provider>  
-    </authentication-manager>  
+        </security:user-service>  
+      </security:authentication-provider>  
+    </security:authentication-manager>   
     
-  <!--<authentication-manager>
-	  <authentication-provider>
-		<jdbc-user-service data-source-ref="dataSource"
+<!-- 	<security:authentication-manager>
+	  <security:authentication-provider>
+		<security:jdbc-user-service data-source-ref="dataSource"
 		  users-by-username-query=
 		    "select username,password, enabled from users where username=?"
 		  authorities-by-username-query=
 		    "select username, role from user_roles where username =?  " />
-	  </authentication-provider>
-	</authentication-manager>-->
-		
-</beans:beans>
+	  </security:authentication-provider>
+	</security:authentication-manager>-->
+</beans> 
+<!-- </beans:beans> sin BD PARA USUARIOS-->

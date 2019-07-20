@@ -1,5 +1,7 @@
 package com.websystique.springmvc.controller;
 
+import javax.ws.rs.core.MediaType;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -10,7 +12,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.google.gson.Gson;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
+import com.websystique.springmvc.criteria.AfiliacionCriteria;
 import com.websystique.springmvc.enums.TipoBandejaEnum;
+import com.websystique.springmvc.modelo.AfiliacionBO;
 import com.websystique.springmvc.service.AfiliacionService;
 
 @Controller
@@ -34,6 +41,8 @@ public class HelloWorldController {
 	public ModelAndView getLogOut() throws Exception{
 
 		ModelAndView mv = new ModelAndView();
+		
+		consultaREST();
 		
 		mv.setViewName("jsp/failure");
 		
@@ -115,5 +124,36 @@ public class HelloWorldController {
 		
 		return mv; 
 	}	
+	
+	public static void consultaREST() {
+
+		try {
+			Client client = Client.create();
+
+			WebResource webResource = client
+			   .resource("http://localhost:7001/Spring4MVCHelloWorldDemo/rest/json/rest/get");
+
+			ClientResponse response = webResource.accept(MediaType.APPLICATION_JSON)
+	                   .get(ClientResponse.class);
+
+			if (response.getStatus() != 200) {
+			   throw new RuntimeException("Failed : HTTP error code : "
+				+ response.getStatus());
+			}
+
+			String cadena = response.getEntity(String.class);
+			Gson gson = new Gson();
+			
+			AfiliacionBO output = gson.fromJson(cadena, AfiliacionBO.class);
+			System.out.println("Output from Server .... \n");
+			System.out.println(output.toString());
+
+		  } catch (Exception e) {
+
+			e.printStackTrace();
+
+		  }
+			
+		}
 
 }

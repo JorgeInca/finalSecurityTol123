@@ -28,7 +28,7 @@
  	</servlet-class>
  	<init-param>
  		<param-name>contextConfigLocation</param-name>
- 		<param-value>/WEB-INF/spring-servlet.xml,/WEB-INF/mi-contexto.xml</param-value>
+ 		<param-value></param-value>
  		 <!-- <param-value>/WEB-INF/*-context.xml</param-value> PATRONES-->
  	</init-param>
  	<load-on-startup>1</load-on-startup>
@@ -48,7 +48,7 @@
  	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
-			/WEB-INF/spring-security.xml
+			/WEB-INF/spring-servlet.xml,/WEB-INF/mi-contexto.xml,/WEB-INF/spring-security.xml
 		</param-value>
 	</context-param>
 	
@@ -68,7 +68,7 @@
  
  <!--  Spring Security -->
  
-<!--  <servlet>
+<servlet>
  	<servlet-name>test</servlet-name>
  	<servlet-class>
  		com.websystique.springmvc.controller.TestServlet
@@ -79,6 +79,28 @@
  <servlet-mapping>
  	<servlet-name>test</servlet-name>
  	<url-pattern>/holaServlet</url-pattern>
- </servlet-mapping> -->
+ </servlet-mapping> 
+ 
+ <!-- Servicio Rest -->
+ 
+ <servlet>
+		<servlet-name>jersey-serlvet</servlet-name>
+		<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+		<init-param>
+		     <param-name>com.sun.jersey.config.property.packages</param-name>
+		     <param-value>com.websystique.springmvc.ws.rest</param-value>
+		</init-param>
+		<init-param>
+	        <param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
+	        <param-value>true</param-value>
+    	</init-param>
+    	
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>jersey-serlvet</servlet-name>
+		<url-pattern>/rest/*</url-pattern>
+	</servlet-mapping>
  
 </web-app>
